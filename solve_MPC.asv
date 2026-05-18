@@ -39,10 +39,10 @@ function [opt_u, full_soln] = solve_MPC(Q, R, S, Np, Nc, t, index, x0, ref_traj,
         J = J + E_curr' * Q * E_curr + U_curr' * R * U_curr;
     
         % Apply all necessary constraints
-        constr = [constr, U_curr(1) <= params.U_max];
-        constr = [constr, U_curr(1) >= -params.U_max];
-        constr = [constr, U_curr(1) <= params.U_max];
-        constr = [constr, U_curr(1) >= -params.U_max];
+        % constr = [constr, U_curr(1) <= params.U_max];
+        % constr = [constr, U_curr(1) >= -params.U_max];
+        % constr = [constr, U_curr(2) <= params.U_max];
+        % constr = [constr, U_curr(2) >= -params.U_max];
         
     
         % Update state variables for next prediction step

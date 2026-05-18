@@ -2,7 +2,7 @@ function [opt_u, full_soln] = solve_MPC(Q, R, S, Np, Nc, t, index, x0, ref_traj,
 
     % n_u is the number of control inputs; n is the number of states
     n_u = size(soln_last, 1);
-    n = 6; % TODO: replace 6 with parameter
+    n = size(x0, 1);
     
     % Define sdpvar matrix U for optimal input at each sample
     
@@ -43,12 +43,18 @@ function [opt_u, full_soln] = solve_MPC(Q, R, S, Np, Nc, t, index, x0, ref_traj,
         % constr = [constr, U_curr(1) >= -params.U_max];
         % constr = [constr, U_curr(2) <= params.U_max];
         % constr = [constr, U_curr(2) >= -params.U_max];
+        %constr = [constr, U_curr(1) == U_curr(2)];
         
     
         % Update state variables for next prediction step
         tic
-        Xdot = get_state_derivs(t, X_curr, U_curr, params);
-        X_curr = X_curr + t_s * Xdot; % We have to use Euler's method here since the system has not been linearized
+
+        deriv_evals = 1;
+        for i=1:deriv_evals
+            Xdot = get_state_derivs(t, X_curr, U_curr, params);
+            X_curr = X_curr + t_s * Xdot + t_s / deriv_evals;
+        end
+
         fprintf("Took %.2f s\n", toc);
  
 

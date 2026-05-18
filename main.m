@@ -15,19 +15,26 @@ x = zeros(6, 1);
 
 Np = 5;
 Nc = 3;
-Q = diag([1000 1000 0 0 0 0]);
-R = diag([0.01 0.01]);
+Q = diag([0 0 1000 1000 0 0]);
+R = diag([0 0]);
 S = zeros(6);
 
 % Define disturbance and reference trajectories
 t_gen = 0:t_s:t_f;
+
+ref_velx_max = 3;
+ref_velx = ref_velx_max * ones(length(t_gen), 1);
+t_full = 1;
+indices = t_gen <= t_full;
+ref_velx(indices) = t_gen(indices) * ref_velx_max / t_full;
+
 ref_traj.Time = t_gen;
-ref_traj.Ref = [0.1 * t_gen; zeros(5, length(t_gen))];
+ref_traj.Ref = [zeros(3, length(t_gen)); ref_velx'; zeros(2, length(t_gen))];
 
 dist_traj.Time = t_gen;
 dist_traj.Dist = zeros(6, length(t_gen));
 
-u_traj = 0 * ones(2, Nc);
+u_traj = 0.1 * ones(2, Nc);
 
 x_sim = [];
 t_sim = [];
@@ -76,6 +83,12 @@ figure
 plot(t_sim, heading * 180 / pi)
 xlabel('Time (s)', 'Interpreter', 'latex', 'FontSize', 14)
 ylabel('Heading (deg)', 'Interpreter', 'latex', 'FontSize', 14)
+grid on;
+
+figure
+plot(t_sim, velx)
+xlabel('Time (s)', 'Interpreter', 'latex', 'FontSize', 14)
+ylabel('$V_x$ $(\frac{m}{s})$', 'Interpreter', 'latex', 'FontSize', 14)
 grid on;
 
 % figure

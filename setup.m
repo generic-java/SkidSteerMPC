@@ -16,7 +16,6 @@ r4 = [-params.a; -params.c];
 params.wheel_rad = 0.025;
 
 params.r_vecs = [r1 r2 r3 r4];
-q = [0; 0; 0]; % x, y, heading
 
 params.M = diag([params.m params.m params.I]); % Inertial matrix
 params.g = 9.81;

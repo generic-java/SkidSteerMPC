@@ -2,7 +2,8 @@ params.m = 0.5;
 params.I = 0.1;
 params.mu_sci = 0.5;
 params.mu_lci = 0.5;
-params.damping = [200 200 1]; % vel x, vel y, angular vel damping
+params.cd = 200; % Translational damping
+params.bd = 1; % Rotational damping
 
 params.a = 0.05;
 params.b = 0.05;
@@ -23,3 +24,5 @@ params.g = 9.81;
 params.add_vel_damping = 1; % Flag to add a damping term to the frictional damping
 
 params.U_max = 1000;
+
+params.k = 1e4;

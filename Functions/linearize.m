@@ -1,0 +1,48 @@
+function [A, B] = linearize(t, x, u, params)
+    xdot = get_state_derivs_nl(t, x, u, params);
+
+    a = params.a;
+    b = params.b;
+    c = params.c;
+    k = params.k;
+    mu_sc = params.mu_sci;
+    mu_lc = params.mu_lci;
+    m = params.m;
+    I = params.I;
+    g = params.g;
+    r = params.wheel_rad;
+    cd = params.cd;
+    bd = params.bd;
+
+    theta = x(3);
+    Xdot = x(4);
+    Ydot = x(5);
+    thetadot = x(6);
+    tau_L = u(1);
+    tau_R = u(2);
+
+    J = zeros(6, 6);
+    J(1:3, 4:6) = eye(3);
+    
+    J(4, 3) = -(pi*tau_L*sin(theta) + pi*tau_R*sin(theta) + 4*g*m*mu_sc*r*cos(theta)*((k*(Ydot*cos(theta) - Xdot*sin(theta)))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (k*(Ydot*cos(theta) - Xdot*sin(theta)))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) + 4*g*m*mu_lc*r*sin(theta)*((k*(Xdot*cos(theta) + Ydot*sin(theta)))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (k*(Xdot*cos(theta) + Ydot*sin(theta)))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)) - 4*g*m*mu_sc*r*sin(theta)*(atan(k*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))) + atan(k*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta)))) + 4*g*m*mu_lc*r*cos(theta)*(atan(k*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))) - atan(k*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta)))))/(m*r*pi);
+    J(4, 4) = -(pi*cd*r + 4*g*m*mu_sc*r*cos(theta)*((k*cos(theta))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (k*cos(theta))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) + 4*g*m*mu_lc*r*sin(theta)*((k*sin(theta))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (k*sin(theta))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)))/(m*r*pi);
+    J(4, 5) = (4*g*m*mu_lc*r*sin(theta)*((k*cos(theta))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (k*cos(theta))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)) - 4*g*m*mu_sc*r*cos(theta)*((k*sin(theta))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (k*sin(theta))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)))/(m*r*pi);
+    J(4, 6) = -(4*g*m*mu_sc*r*cos(theta)*((c*k)/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) - (c*k)/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) + 4*g*m*mu_lc*r*sin(theta)*((a*k)/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) - (b*k)/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)))/(m*r*pi);
+ 
+    J(5, 3) = (pi*tau_L*cos(theta) + pi*tau_R*cos(theta) + 4*g*m*mu_lc*r*cos(theta)*((k*(Xdot*cos(theta) + Ydot*sin(theta)))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (k*(Xdot*cos(theta) + Ydot*sin(theta)))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)) - 4*g*m*mu_sc*r*sin(theta)*((k*(Ydot*cos(theta) - Xdot*sin(theta)))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (k*(Ydot*cos(theta) - Xdot*sin(theta)))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) - 4*g*m*mu_sc*r*cos(theta)*(atan(k*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))) + atan(k*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta)))) - 4*g*m*mu_lc*r*sin(theta)*(atan(k*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))) - atan(k*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta)))))/(m*r*pi);
+    J(5, 4) = -(4*g*m*mu_sc*r*sin(theta)*((k*cos(theta))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (k*cos(theta))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) - 4*g*m*mu_lc*r*cos(theta)*((k*sin(theta))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (k*sin(theta))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)))/(m*r*pi);
+    J(5, 5) = -(pi*cd*r + 4*g*m*mu_lc*r*cos(theta)*((k*cos(theta))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (k*cos(theta))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)) + 4*g*m*mu_sc*r*sin(theta)*((k*sin(theta))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (k*sin(theta))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)))/(m*r*pi);
+    J(5, 6) = (4*g*m*mu_lc*r*cos(theta)*((a*k)/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) - (b*k)/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1)) - 4*g*m*mu_sc*r*sin(theta)*((c*k)/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) - (c*k)/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)))/(m*r*pi);
+
+    J(6, 3) = -(4*c*g*m*mu_sc*r*((k*(Ydot*cos(theta) - Xdot*sin(theta)))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) - (k*(Ydot*cos(theta) - Xdot*sin(theta)))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) + (4*a*g*k*m*mu_lc*r*(Xdot*cos(theta) + Ydot*sin(theta)))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) - (4*b*g*k*m*mu_lc*r*(Xdot*cos(theta) + Ydot*sin(theta)))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1))/(I*r*pi);
+    J(6, 4) = -(4*c*g*m*mu_sc*r*((k*cos(theta))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) - (k*cos(theta))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) + (4*a*g*k*m*mu_lc*r*sin(theta))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) - (4*b*g*k*m*mu_lc*r*sin(theta))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1))/(I*r*pi);
+    J(6, 5) = -(4*c*g*m*mu_sc*r*((k*sin(theta))/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) - (k*sin(theta))/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) - (4*a*g*k*m*mu_lc*r*cos(theta))/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (4*b*g*k*m*mu_lc*r*cos(theta))/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1))/(I*r*pi);
+    J(6, 6) = -(pi*bd*r + 4*c*g*m*mu_sc*r*((c*k)/(k^2*(c*thetadot + Xdot*cos(theta) + Ydot*sin(theta))^2 + 1) + (c*k)/(k^2*(Xdot*cos(theta) - c*thetadot + Ydot*sin(theta))^2 + 1)) + (4*a^2*g*k*m*mu_lc*r)/(k^2*(a*thetadot - Ydot*cos(theta) + Xdot*sin(theta))^2 + 1) + (4*b^2*g*k*m*mu_lc*r)/(k^2*(b*thetadot + Ydot*cos(theta) - Xdot*sin(theta))^2 + 1))/(I*r*pi);
+
+    A = [J, xdot; zeros(1, 7)];
+    B = [zeros(3, 2);
+         cos(theta)/(m*r)  cos(theta)/(m*r);
+         sin(theta)/(m*r)  sin(theta)/(m*r);
+         -c/(I*r)	                c/(I*r);
+             0                         0   ];
+end

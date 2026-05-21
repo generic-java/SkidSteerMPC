@@ -5,6 +5,7 @@ clc
 addpath(genpath('C:\Users\geelhose\OneDrive - Rose-Hulman Institute of Technology\Desktop\Research\Model\YALMIP'));
 addpath(genpath('C:\Users\geelhose\OneDrive - Rose-Hulman Institute of Technology\Desktop\Research\Model\OPTI-master'));
 
+%% THIS IS BROKEN, FOR NOW - I've rearranged some code and this will no longer work.  See main_linearized instead
 
 %% Define Physical Parameters
 setup;

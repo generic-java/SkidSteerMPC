@@ -22,7 +22,7 @@ function R_matrix = R(q, qdot, params) % Checked, good
     F_r = rot(theta) * sum(F, 2); % Perform a column-wise sum and then rotate by theta
     R_matrix = [F_r; M_r];
     if params.add_vel_damping
-        R_matrix = R_matrix + diag(params.damping) * qdot;
+        R_matrix = R_matrix + diag([params.cd params.cd params.bd]) * qdot;
     end
 end
 
